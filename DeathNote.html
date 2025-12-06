@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Death Note Simulator by Fatih</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Crimson Text', serif;
+            background-color: #0a0a0a;
+            color: #333;
+            background-image: 
+                radial-gradient(#1a1a1a 1px, transparent 1px),
+                radial-gradient(#222 1px, transparent 1px);
+            background-size: 30px 30px, 60px 60px;
+            background-position: 0 0, 30px 30px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* Font Death Note */
+        @font-face {
+            font-family: 'Death Note';
+            src: url('https://fonts.cdnfonts.com/s/31248/Death Note.woff') format('woff');
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: #111;
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(139, 0, 0, 0.5);
+            overflow: hidden;
+            border: 2px solid #8b0000;
+            position: relative;
+            z-index: 2;
+        }
+        
+        header {
+            background-color: #000;
+            color: #fff;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 3px solid #8b0000;
+            position: relative;
+            background-image: 
+                linear-gradient(45deg, transparent 45%, #8b0000 45%, #8b0000 55%, transparent 55%),
+                linear-gradient(-45deg, transparent 45%, #8b0000 45%, #8b0000 55%, transparent 55%);
+            background-size: 20px 20px;
+        }
+        
+        h1 {
+            font-family: 'Death Note', 'Crimson Text', serif;
+            font-size: 3.5rem;
+            color: #fff;
+            text-shadow: 0 0 15px #ff0000, 0 0 25px #8b0000;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            letter-spacing: 1px;
+        }
+        
+        .creator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 1.1rem;
+            background-color: #8b0000;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        
+        .death-note-book {
+            padding: 30px;
+            background-color: #1a1a1a;
+            min-height: 550px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .note-paper {
+            background-color: #f5f5dc;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+            border: 2px solid #d4af37;
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .note-paper::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50px;
+            width: 2px;
+            height: 100%;
+            background: rgba(139, 0, 0, 0.1);
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #8b0000;
+            font-weight: 600;
+            font-family: 'Death Note', 'Crimson Text', serif;
+            letter-spacing: 1px;
+        }
+        
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #8b0000;
+            border-radius: 5px;
+            background-color: #fff;
+            font-family: 'Crimson Text', serif;
+            transition: all 0.3s;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+        }
+        
+        .death-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .death-details {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .death-cause-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .cause-option {
+            padding: 12px;
+            background-color: #f0f0f0;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .cause-option:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cause-option.selected {
+            background-color: #8b0000;
+            color: white;
+            border-color: #8b0000;
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.5);
+        }
+        
+        .execute-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        button {
+            background-color: #8b0000;
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Death Note', 'Crimson Text', serif;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover {
+            background-color: #a30000;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        button:disabled::before {
+            display: none;
+        }
+        
+        .countdown-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 30px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            color: white;
+            display: none;
+            border: 2px solid #8b0000;
+        }
+        
+        #countdown {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #ff0000;
+            text-shadow: 0 0 20px #ff0000;
+            margin: 20px 0;
+            font-family: 'Death Note', monospace;
+        }
+        
+        .result-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 30px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-radius: 15px;
+            color: white;
+            display: none;
+            border: 3px solid #8b0000;
+            position: relative;
+            z-index: 3;
+        }
+        
+        .ryuk-container {
+            margin: 20px 0;
+            position: relative;
+            height: 300px;
+        }
+        
+        #ryukImage {
+            max-width: 100%;
+            max-height: 300px;
+            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.7));
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .death-message {
+            font-size: 2.2rem;
+            color: #ff0000;
+            margin: 20px 0;
+            font-family: 'Death Note', 'Crimson Text', serif;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        }
+        
+        .victim-name {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 2.5rem;
+            text-decoration: underline;
+        }
+        
+        .death-cause {
+            color: #ff9999;
+            font-style: italic;
+            font-size: 1.8rem;
+        }
+        
+        .restart-btn {
+            background-color: #333;
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+        }
+        
+        .restart-btn:hover {
+            background-color: #555;
+        }
+        
+        .sound-control {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        
+        #toggleSound {
+            padding: 5px 15px;
+            font-size: 1rem;
+            background-color: #8b0000;
+        }
+        
+        .warning {
+            color: #8b0000;
+            font-size: 1rem;
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+            padding: 10px;
+            background-color: rgba(139, 0, 0, 0.1);
+            border-radius: 5px;
+            border-left: 4px solid #8b0000;
+        }
+        
+        footer {
+            margin-top: 20px;
+            color: #666;
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 10px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+        }
+        
+        .rules {
+            margin-top: 20px;
+            color: #aaa;
+            font-size: 0.9rem;
+            text-align: left;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            border-left: 4px solid #8b0000;
+        }
+        
+        .rules h3 {
+            color: #8b0000;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .creator {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-top: 10px;
+                display: inline-block;
+            }
+            
+            .death-note-book {
+                padding: 15px;
+            }
+            
+            .death-cause-options {
+                grid-template-columns: 1fr;
+            }
+            
+            #countdown {
+                font-size: 4rem;
+            }
+            
+            .death-message {
+                font-size: 1.8rem;
+            }
+            
+            .victim-name {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Efek tulisan di Death Note */
+        .handwriting {
+            font-family: 'Crimson Text', serif;
+            font-style: italic;
+        }
+        
+        /* Efek lalat untuk latar */
+        .fly {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.7;
+            animation: flyAround 15s linear infinite;
+        }
+        
+        @keyframes flyAround {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(100px, 100px); }
+            50% { transform: translate(50px, 200px); }
+            75% { transform: translate(-100px, 150px); }
+            100% { transform: translate(0, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DEATH NOTE</h1>
+            <div class="subtitle">Simulator - Tulislah nama dan atur cara kematiannya</div>
+            <div class="creator">Website by Fatih</div>
+            <div class="sound-control">
+                <span>Sound: </span>
+                <button id="toggleSound">ON</button>
+            </div>
+        </header>
+        
+        <div class="death-note-book">
+            <div class="note-paper">
+                <div class="input-section">
+                    <label for="victimName">TULIS NAMA KORBAN:</label>
+                    <input type="text" id="victimName" placeholder="Contoh: Light Yagami" maxlength="50">
+                </div>
+                
+                <div class="input-section">
+                    <label for="deathDetails">RINCIAN KEMATIAN (Opsional):</label>
+                    <textarea id="deathDetails" placeholder="Deskripsikan secara detail bagaimana korban akan mati. Contoh: 'Setelah menyeberang jalan, korban akan terpelesat kulit pisang, terbentur tiang listrik, lalu jatuh ke selokan yang berisi buaya...'"></textarea>
+                </div>
+                
+                <div class="death-details">
+                    <div class="input-section">
+                        <label for="deathCause">PENYEBAB UTAMA:</label>
+                        <select id="deathCause">
+                            <option value="" disabled selected>-- Pilih penyebab kematian --</option>
+                            <option value="Serangan jantung mendadak">Serangan jantung mendadak</option>
+                            <option value="Kecelakaan transportasi aneh">Kecelakaan transportasi aneh</option>
+                            <option value="Ditabrak truk es krim keliling">Ditabrak truk es krim keliling</option>
+                            <option value="Tertawa terbahak-bahak sampai meninggal">Tertawa terbahak-bahak sampai meninggal</option>
+                            <option value="Terpeleset kulit pisang dan terbentur">Terpeleset kulit pisang dan terbentur</option>
+                            <option value="Dikejar kawanan lebah marah">Dikejar kawanan lebah marah</option>
+                            <option value="Kesurupan hantu lemah">Kesurupan hantu lemah</option>
+                            <option value="Keracunan makanan pedas">Keracunan makanan pedas</option>
+                            <option value="Kaget melihat tagihan listrik">Kaget melihat tagihan listrik</option>
+                            <option value="Tertimpa meteor kecil dari angkasa">Tertimpa meteor kecil dari angkasa</option>
+                            <option value="Tersambar petir di hari cerah">Tersambar petir di hari cerah</option>
+                            <option value="Tenggelam di kolam renang kosong">Tenggelam di kolam renang kosong</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-section">
+                        <label for="deathTime">WAKTU KEMATIAN:</label>
+                        <select id="deathTime">
+                            <option value="40 detik lagi" selected>40 detik lagi</option>
+                            <option value="1 jam lagi">1 jam lagi</option>
+                            <option value="Besok pagi">Besok pagi</option>
+                            <option value="Minggu depan">Minggu depan</option>
+                            <option value="Bulan depan">Bulan depan</option>
+                            <option value="Tahun depan">Tahun depan</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <p style="margin-top: 15px; color: #555; font-weight: bold;">ATAU PILIH CEPAT:</p>
+                    <div class="death-cause-options">
+                        <div class="cause-option" data-cause="Serangan jantung mendadak">Serangan Jantung</div>
+                        <div class="cause-option" data-cause="Kecelakaan transportasi aneh">Kecelakaan Aneh</div>
+                        <div class="cause-option" data-cause="Ditabrak truk es krim keliling">Truk Es Krim</div>
+                        <div class="cause-option" data-cause="Tertawa terbahak-bahak sampai meninggal">Tertawa Meninggal</div>
+                    </div>
+                </div>
+                
+                <div class="rules">
+                    <h3>Aturan Death Note:</h3>
+                    <p>1. Manusia yang namanya ditulis di buku ini akan mati.</p>
+                    <p>2. Penyebab kematian bisa diatur secara detail.</p>
+                    <p>3. Jika penyebab kematian tidak ditulis, korban akan mati karena serangan jantung.</p>
+                    <p>4. Setelah nama ditulis, tidak dapat dihapus atau dibatalkan.</p>
+                </div>
+                
+                <div class="execute-section">
+                    <button id="executeBtn">TULIS DI DEATH NOTE</button>
+                </div>
+                
+                <div class="warning">
+                    ⚠️ PERINGATAN: Ini hanya simulasi untuk hiburan! Jangan percaya pada kekuatan supernatural Death Note! ⚠️
+                </div>
+                
+                <div class="countdown-section" id="countdownSection">
+                    <h2 style="font-family: 'Death Note', serif; margin-bottom: 20px;">KEMATIAN AKAN TERJADI DALAM:</h2>
+                    <div id="countdown">40</div>
+                    <p style="font-size: 1.3rem;">Detik...</p>
+                    <p id="deathPreview" style="margin-top: 20px; color: #ff9999; font-style: italic;"></p>
+                </div>
+                
+                <div class="result-section" id="resultSection">
+                    <h2 style="font-family: 'Death Note', serif; font-size: 2.5rem; margin-bottom: 10px;">EKSEKUSI SELESAI</h2>
+                    <div class="ryuk-container">
+                        <img id="ryukImage" src="https://i.imgur.com/4SQXt8G.png" alt="Ryuk" onerror="this.onerror=null; this.src='https://i.imgur.com/4SQXt8G.png';">
+                    </div>
+                    <div class="death-message">
+                        <span class="victim-name" id="resultName">Light Yagami</span> TELAH MENINGGAL<br>
+                        <span style="font-size: 1.5rem;">Karena:</span><br>
+                        <span class="death-cause" id="resultCause">Serangan jantung mendadak</span>
+                    </div>
+                    <p id="resultDetails" style="margin-top: 15px; color: #ccc; font-size: 1.2rem;"></p>
+                    <p style="margin-top: 20px; color: #aaa; font-style: italic;">"Apel itu enak ya, manusia?" - Ryuk</p>
+                    <button class="restart-btn" id="restartBtn">TULIS NAMA LAIN</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>DEATH NOTE SIMULATOR - Hanya untuk hiburan semata | Website by Fatih | © 2023</p>
+        <p>Disclaimer: Karakter Death Note adalah hak cipta Tsugumi Ohba dan Takeshi Obata. Tidak ada hubungan resmi.</p>
+    </footer>
+
+    <!-- Audio Files -->
+    <audio id="writeSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-pen-scribbling-on-paper-2200.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="pageSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-book-page-flip-3021.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="countdownSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="deathSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-ominous-drums-227.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="ryukLaugh" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-creepy-laugh-220.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elemen DOM
+            const victimNameInput = document.getElementById('victimName');
+            const deathDetailsInput = document.getElementById('deathDetails');
+            const deathCauseSelect = document.getElementById('deathCause');
+            const deathTimeSelect = document.getElementById('deathTime');
+            const executeBtn = document.getElementById('executeBtn');
+            const countdownSection = document.getElementById('countdownSection');
+            const resultSection = document.getElementById('resultSection');
+            const countdownDisplay = document.getElementById('countdown');
+            const resultName = document.getElementById('resultName');
+            const resultCause = document.getElementById('resultCause');
+            const resultDetails = document.getElementById('resultDetails');
+            const deathPreview = document.getElementById('deathPreview');
+            const restartBtn = document.getElementById('restartBtn');
+            const toggleSoundBtn = document.getElementById('toggleSound');
+            const causeOptions = document.querySelectorAll('.cause-option');
+            const ryukImage = document.getElementById('ryukImage');
+            
+            // Audio elements
+            const writeSound = document.getElementById('writeSound');
+            const pageSound = document.getElementById('pageSound');
+            const countdownSound = document.getElementById('countdownSound');
+            const deathSound = document.getElementById('deathSound');
+            const ryukLaugh = document.getElementById('ryukLaugh');
+            
+            // Variabel kontrol
+            let countdownValue = 40;
+            let countdownInterval;
+            let soundEnabled = true;
+            
+            // Buat efek lalat terbang
+            function createFlies() {
+                for (let i = 0; i < 5; i++) {
+                    const fly = document.createElement('div');
+                    fly.classList.add('fly');
+                    fly.style.left = Math.random() * 100 + 'vw';
+                    fly.style.top = Math.random() * 100 + 'vh';
+                    fly.style.animationDelay = Math.random() * 20 + 's';
+                    fly.style.width = (Math.random() * 10 + 5) + 'px';
+                    fly.style.height = fly.style.width;
+                    document.body.appendChild(fly);
+                }
+            }
+            
+            createFlies();
+            
+            // Pilih penyebab kematian cepat
+            causeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Hapus selected dari semua opsi
+                    causeOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Tambah selected ke opsi yang diklik
+                    this.classList.add('selected');
+                    
+                    // Set nilai select
+                    deathCauseSelect.value = this.getAttribute('data-cause');
+                    
+                    // Putar suara
+                    if (soundEnabled) {
+                        pageSound.currentTime = 0;
+                        pageSound.play();
+                    }
+                });
+            });
+            
+            // Toggle sound
+            toggleSoundBtn.addEventListener('click', function() {
+                soundEnabled = !soundEnabled;
+                this.textContent = soundEnabled ? 'ON' : 'OFF';
+                this.style.backgroundColor = soundEnabled ? '#8b0000' : '#666';
+                
+                // Jika mematikan suara, hentikan semua audio
+                if (!soundEnabled) {
+                    writeSound.pause();
+                    pageSound.pause();
+                    countdownSound.pause();
+                    deathSound.pause();
+                    ryukLaugh.pause();
+                }
+            });
+            
+            // Efek saat mengetik nama
+            victimNameInput.addEventListener('input', function() {
+                if (soundEnabled && this.value.length > 0) {
+                    writeSound.currentTime = 0;
+                    writeSound.play();
+                }
+            });
+            
+            // Efek saat mengetik detail
+            deathDetailsInput.addEventListener('input', function() {
+                if (soundEnabled && this.value.length > 0 && this.value.length % 10 === 0) {
+                    writeSound.currentTime = 0;
+                    writeSound.play();
+                }
+            });
+            
+            // Efek saat memilih penyebab kematian
+            deathCauseSelect.addEventListener('change', function() {
+                if (soundEnabled) {
+                    pageSound.currentTime = 0;
+                    pageSound.play();
+                }
+                
+                // Hapus selected dari opsi cepat
+                causeOptions.forEach(opt => opt.classList.remove('selected'));
+            });
+            
+            // Efek saat memilih waktu
+            deathTimeSelect.addEventListener('change', function() {
+                if (soundEnabled) {
+                    pageSound.currentTime = 0;
+                    pageSound.play();
+                }
+                
+                // Update countdown value berdasarkan pilihan
+                if (this.value === "40 detik lagi") countdownValue = 40;
+                else if (this.value === "1 jam lagi") countdownValue = 3600;
+                else countdownValue = 5; // Untuk pilihan lain, buat cepat saja
+            });
+            
+            // Eksekusi Death Note
+            executeBtn.addEventListener('click', function() {
+                const victimName = victimNameInput.value.trim();
+                const deathCause = deathCauseSelect.value;
+                const deathDetails = deathDetailsInput.value.trim();
+                const deathTime = deathTimeSelect.value;
+                
+                if (!victimName) {
+                    alert('Tulis nama korban dulu!');
+                    victimNameInput.focus();
+                    return;
+                }
+                
+                if (!deathCause) {
+                    alert('Pilih penyebab kematian dulu!');
+                    deathCauseSelect.focus();
+                    return;
+                }
+                
+                // Update countdown value berdasarkan pilihan waktu
+                if (deathTime === "40 detik lagi") countdownValue = 40;
+                else if (deathTime === "1 jam lagi") countdownValue = 3600;
+                else countdownValue = 5; // Untuk pilihan lain, buat cepat saja
+                
+                // Sembunyikan input, tampilkan hitungan mundur
+                document.querySelectorAll('.input-section').forEach(el => el.style.display = 'none');
+                document.querySelector('.execute-section').style.display = 'none';
+                document.querySelector('.rules').style.display = 'none';
+                document.querySelector('.warning').style.display = 'none';
+                countdownSection.style.display = 'block';
+                
+                // Tampilkan preview kematian
+                deathPreview.textContent = `${victimName} akan mati karena ${deathCause.toLowerCase()} ${deathTime}.`;
+                
+                // Mulai hitungan mundur
+                countdownDisplay.textContent = countdownValue;
+                
+                // Putar suara hitungan mundur
+                if (soundEnabled) {
+                    countdownSound.currentTime = 0;
+                    countdownSound.play();
+                }
+                
+                // Hitungan mundur
+                countdownInterval = setInterval(() => {
+                    countdownValue--;
+                    
+                    // Format waktu untuk tampilan
+                    if (countdownValue > 60) {
+                        const minutes = Math.floor(countdownValue / 60);
+                        const seconds = countdownValue % 60;
+                        countdownDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    } else {
+                        countdownDisplay.textContent = countdownValue;
+                    }
+                    
+                    // Efek visual saat hitungan mundur
+                    if (countdownValue <= 10) {
+                        countdownDisplay.style.color = '#ff0000';
+                        countdownDisplay.style.textShadow = '0 0 25px #ff0000';
+                        
+                        // Berkedip saat mendekati 0
+                        if (countdownValue <= 5) {
+                            countdownDisplay.style.animation = 'none';
+                            setTimeout(() => {
+                                countdownDisplay.style.animation = 'blink 0.3s infinite';
+                            }, 10);
+                        }
+                    }
+                    
+                    // Saat hitungan mundur selesai
+                    if (countdownValue <= 0) {
+                        clearInterval(countdownInterval);
+                        
+                        // Hentikan suara hitungan mundur
+                        countdownSound.pause();
+                        
+                        // Tampilkan hasil
+                        showDeathResult(victimName, deathCause, deathDetails, deathTime);
+                    }
+                }, 1000);
+            });
+            
+            // Tampilkan hasil kematian
+            function showDeathResult(name, cause, details, time) {
+                countdownSection.style.display = 'none';
+                resultSection.style.display = 'block';
+                
+                // Set hasil
+                resultName.textContent = name;
+                resultCause.textContent = cause;
+                
+                // Tampilkan detail jika ada
+                if (details) {
+                    resultDetails.textContent = `Detail: ${details}`;
+                } else {
+                    resultDetails.textContent = `Waktu: ${time}`;
+                }
+                
+                // Putar suara kematian dan Ryuk
+                if (soundEnabled) {
+                    deathSound.currentTime = 0;
+                    deathSound.play();
+                    
+                    // Ryuk tertawa setelah 1 detik
+                    setTimeout(() => {
+                        ryukLaugh.currentTime = 0;
+                        ryukLaugh.play();
+                    }, 1000);
+                }
+                
+                // Efek visual
+                document.body.style.backgroundColor = '#200000';
+                document.querySelector('.container').style.boxShadow = '0 0 70px #ff0000';
+                
+                // Animasi Ryuk
+                ryukImage.style.filter = 'drop-shadow(0 0 20px rgba(255, 0, 0, 0.9))';
+                
+                // Otomatis restart setelah 8 detik
+                setTimeout(() => {
+                    restartSimulation();
+                }, 8000);
+            }
+            
+            // Restart simulasi
+            restartBtn.addEventListener('click', restartSimulation);
+            
+            function restartSimulation() {
+                // Reset semua elemen
+                victimNameInput.value = '';
+                deathDetailsInput.value = '';
+                deathCauseSelect.value = '';
+                deathTimeSelect.value = '40 detik lagi';
+                countdownValue = 40;
+                
+                // Hentikan semua suara
+                writeSound.pause();
+                pageSound.pause();
+                countdownSound.pause();
+                deathSound.pause();
+                ryukLaugh.pause();
+                
+                // Reset tampilan
+                document.querySelectorAll('.input-section').forEach(el => el.style.display = 'block');
+                document.querySelector('.execute-section').style.display = 'block';
+                document.querySelector('.rules').style.display = 'block';
+                document.querySelector('.warning').style.display = 'block';
+                countdownSection.style.display = 'none';
+                resultSection.style.display = 'none';
+                
+                // Reset visual
+                document.body.style.backgroundColor = '';
+                document.querySelector('.container').style.boxShadow = '';
+                countdownDisplay.style.color = '';
+                countdownDisplay.style.textShadow = '';
+                countdownDisplay.style.animation = '';
+                deathPreview.textContent = '';
+                resultDetails.textContent = '';
+                
+                // Hapus selected dari opsi cepat
+                causeOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Hentikan interval
+                clearInterval(countdownInterval);
+                
+                // Fokus ke input nama
+                victimNameInput.focus();
+                
+                // Putar suara flip halaman
+                if (soundEnabled) {
+                    pageSound.currentTime = 0;
+                    pageSound.play();
+                }
+            }
+            
+            // Tambah style untuk animasi berkedip
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes blink {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.2; }
+                }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                .result-section, .countdown-section {
+                    animation: fadeIn 0.8s ease-out;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
